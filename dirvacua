@@ -131,7 +131,7 @@ def split_numeric_sort(x, y):
 
 
 
-def ExpireOldestFiles(dir_path):
+def OldestFiles(dir_path):
     if not os.path.isdir(dir_path):
         return
     files_dict = {}
@@ -160,8 +160,22 @@ def ExpireOldestFiles(dir_path):
             while len(sortedlist) > length:
                 item = sortedlist.pop()
                 fullpath = os.path.join(dir_path,item)
+                yield fullpath
                 print "deleting %s" % (fullpath)
                 #os.remove(fullpath)
+    return
+
+
+def ExpireOldestFiles(dir_path,noop = True):
+    log = logging.getLogger("ExpireOldestFiles")
+    for filepath in OldestFiles(dir_path):
+        if noop:
+            log.info("Would remove:%s" % (filepath))
+            continue
+        log.debug("Removing:%s" % (filepath))
+        
+
+
 def main():
     """Runs program and handles command line options"""
     p = optparse.OptionParser(version = "%prog " + version)
