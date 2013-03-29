@@ -46,7 +46,7 @@ directories = [
     ]
 
 
-regdelexp = re.compile('[-,.\/]')
+regdelexp = re.compile('[-,\_.\/]')
 regnumeric = re.compile('[0-9]+')
 
 def split_line_by_delimiter(line,regex):
@@ -132,7 +132,10 @@ def split_numeric_sort(x, y):
 
 
 def OldestFiles(dir_path):
+    log = logging.getLogger("OldestFiles")
+    #log.info(dir_path)
     if not os.path.isdir(dir_path):
+        log.warning("Invalid directory:%s" % (dir_path))
         return
     files_dict = {}
     for filename in os.listdir(dir_path):
@@ -140,29 +143,45 @@ def OldestFiles(dir_path):
         if not os.path.isfile(fullpath):
             continue
         splitname = split_line_by_delimiter(filename,regdelexp)
-        namestart = ''
-        for item in splitname:
-            if item.isdigit():
-                break
-            else:
-                namestart += item
+        namestart = filename
+        
+        if len(splitname) > 10:
+            #print filename
+            #print len(splitname)
+            namestart = ''
+            digitcounter = 0
+            groupingdepth = 0
+            for item in splitname:
+                if item.isdigit():
+                    digitcounter += 1
+                    if digitcounter > 0:
+                        break
+                else:
+                    groupingdepth  += 1
+                    namestart += item
+                    if groupingdepth > 4:
+                        break
+
+        if len(namestart) == 0:
+            namestart = filename
+        
         
         if not namestart in files_dict.keys():
             files_dict[namestart] = []
             #print namestart
         files_dict[namestart].append(filename)
+    
     for key in files_dict.keys():
         workinglist = files_dict[key]
         length = 10
         if len(workinglist) > length:
             #print workinglist
             sortedlist = sorted(workinglist, cmp=split_numeric_sort)
+            print sortedlist
             while len(sortedlist) > length:
                 item = sortedlist.pop()
                 fullpath = os.path.join(dir_path,item)
                 yield fullpath
-                print "deleting %s" % (fullpath)
-                #os.remove(fullpath)
     return
 
 
@@ -173,21 +192,24 @@ def ExpireOldestFiles(dir_path,noop = True):
             log.info("Would remove:%s" % (filepath))
             continue
         log.debug("Removing:%s" % (filepath))
+        os.remove(fullpath)
         
 
 
 def main():
     """Runs program and handles command line options"""
     p = optparse.OptionParser(version = "%prog " + version)
-    p.add_option('-d', '--database', action ='store', help='Database conection string')
     p.add_option('-L', '--logcfg', action ='store',help='Logfile configuration file.', metavar='CFG_LOGFILE')
     p.add_option('--verbose', action ='count',help='Change global log level, increasing log output.', metavar='LOGFILE')
     p.add_option('--quiet', action ='count',help='Change global log level, decreasing log output.', metavar='LOGFILE')
+    p.add_option('--nop', action ='store_true',help='Show files that woudl be removed.', metavar='LOGFILE')
+    p.add_option('--max', action ='store',help='Set the maximum files allowed.', metavar='LOGFILE')
 
     options, arguments = p.parse_args()
     
     # Set up basic variables
     logFile = None
+    nodelete = False
     
        # Read enviroment variables
     if 'VMCASTER_LOG_CONF' in os.environ:
@@ -224,6 +246,9 @@ def main():
     
     if options.logcfg:
         logFile = options.logcfg
+    if options.nop:
+        nodelete = True
+    
     if logFile != None:
         if os.path.isfile(str(options.log_config)):
             logging.config.fileConfig(options.log_config)
