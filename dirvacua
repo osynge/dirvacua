@@ -1,0 +1,167 @@
+#!/usr/bin/env python
+
+# Copyright (c) 2012 Owen Synge 
+# All rights reserved.
+
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#     * Redistributions of source code must retain the above copyright
+#       notice, this list of conditions and the following disclaimer.
+#     * Redistributions in binary form must reproduce the above copyright
+#       notice, this list of conditions and the following disclaimer in the
+#       documentation and/or other materials provided with the distribution.
+#     * Neither the name of the DESY nor the
+#       names of its contributors may be used to endorse or promote products
+#       derived from this software without specific prior written permission.
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+# ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL Owen Synge BE LIABLE FOR ANY
+# DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+# SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
+import os
+import os.path
+
+import re
+import sys
+
+prefix = '/root/owen/grid-virt/com.redhat.repo.maker/trunk/'
+
+directories = [
+        'sl6/noarch/RPMS.experimental/',
+        'sl6/noarch/SRPMS.experimental/',
+        'sl5/noarch/RPMS.experimental/',
+        'sl5/noarch/SRPMS.experimental/',
+    ]
+
+
+regdelexp = re.compile('[-,.\/]')
+regnumeric = re.compile('[0-9]+')
+
+def split_line_by_delimiter(line,regex):
+    splitline = []
+    splititr = regex.finditer(line)
+    lstart = 0
+    for i in splititr:
+        (mstart,mend) = i.span()
+        if lstart != mstart:
+            splitline.append(line[lstart:mstart])
+        splitline.append(line[mstart:mend])
+        lstart = mend
+    linelen = len(line)
+    if lstart != linelen:
+        splitline.append(line[lstart:linelen])
+    return splitline
+
+
+def string_sort(x,y):
+    xsplit = split_line_by_delimiter(x,regnumeric)
+    ysplit = split_line_by_delimiter(y,regnumeric)
+    ysplitlen = len(ysplit)
+    xsplitlen = len(xsplit)
+    minsplitlen = ysplitlen
+    if xsplitlen < ysplitlen:
+        minsplitlen = xsplitlen
+    for i in range(minsplitlen):
+        if xsplit[i] == ysplit[i]:
+            continue
+        if (xsplit[i].isdigit() and ysplit[i].isdigit()):
+            rc = int(0)
+            if int(xsplit[i]) > int(ysplit[i]):
+                rc = -1
+            if int(xsplit[i]) < int(ysplit[i]):
+                rc = 1
+            return rc
+        if xsplit[i].isdigit():
+            return -1
+        if ysplit[i].isdigit():
+            return 1
+        if xsplit[i] > ysplit[i]:
+            return -1
+        if xsplit[i] < ysplit[i]:
+            return 1
+    if xsplitlen < ysplitlen:
+        return 1
+    if xsplitlen > ysplitlen:
+        return -1
+    return 0
+
+def split_numeric_sort(x, y):
+    xsplit = split_line_by_delimiter(x,regdelexp)
+    ysplit = split_line_by_delimiter(y,regdelexp)
+    ysplitlen = len(ysplit)
+    xsplitlen = len(xsplit)
+    minsplitlen = ysplitlen
+    if xsplitlen < ysplitlen:
+        minsplitlen = xsplitlen
+    for i in range(minsplitlen):
+        if xsplit[i] == ysplit[i]:
+            continue
+        if (xsplit[i].isdigit() and ysplit[i].isdigit()):
+            rc = int(0)
+            if int(xsplit[i]) > int(ysplit[i]):
+                rc = -1
+            if int(xsplit[i]) < int(ysplit[i]):
+                rc = 1
+            return rc
+        if xsplit[i].isdigit():
+            return -1
+        if ysplit[i].isdigit():
+            return 1
+        rc = string_sort(xsplit[i],ysplit[i])
+        if rc != 0:
+            return rc
+    if xsplitlen < ysplitlen:
+        return 1
+    if xsplitlen > ysplitlen:
+        return -1
+    return 0
+
+
+
+
+def ExpireOldestFiles(dir_path):
+    if not os.path.isdir(dir_path):
+        return
+    files_dict = {}
+    for filename in os.listdir(dir_path):
+        fullpath = os.path.join(dir_path,filename)
+        if not os.path.isfile(fullpath):
+            continue
+        splitname = split_line_by_delimiter(filename,regdelexp)
+        namestart = ''
+        for item in splitname:
+            if item.isdigit():
+                break
+            else:
+                namestart += item
+        
+        if not namestart in files_dict.keys():
+            files_dict[namestart] = []
+            #print namestart
+        files_dict[namestart].append(filename)
+    for key in files_dict.keys():
+        workinglist = files_dict[key]
+        
+        if len(workinglist) > 10:
+            #print workinglist
+            sortedlist = sorted(workinglist, cmp=split_numeric_sort)
+            while len(sortedlist) > 10:
+                item = sortedlist.pop()
+                fullpath = os.path.join(dir_path,item)
+                print "deleting %s" % (fullpath)
+                os.remove(fullpath)
+def main():
+    for thisdir in directories:
+        working_dir = os.path.join(prefix,thisdir)
+        ExpireOldestFiles(working_dir)
+
+if __name__ == "__main__":
+    main()
