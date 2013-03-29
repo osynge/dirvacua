@@ -204,7 +204,7 @@ class dirvacua:
                 self.log.info("Would remove:%s" % (filepath))
                 continue
             self.log.debug("Removing:%s" % (filepath))
-            os.remove(fullpath)
+            os.remove(filepath)
 
 def main():
     """Runs program and handles command line options"""
