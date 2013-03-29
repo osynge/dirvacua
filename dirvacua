@@ -130,77 +130,56 @@ def split_numeric_sort(x, y):
 
 
 
-
-def OldestFiles(dir_path):
-    log = logging.getLogger("OldestFiles")
-    #log.info(dir_path)
-    if not os.path.isdir(dir_path):
-        log.warning("Invalid directory:%s" % (dir_path))
-        return
-    files_dict = {}
-    for filename in os.listdir(dir_path):
-        fullpath = os.path.join(dir_path,filename)
-        if not os.path.isfile(fullpath):
-            continue
-        splitname = split_line_by_delimiter(filename,regdelexp)
-        namestart = filename
-        
-        if len(splitname) > 10:
-            #print filename
-            #print len(splitname)
-            namestart = ''
-            digitcounter = 0
-            groupingdepth = 0
-            for item in splitname:
-                if item.isdigit():
-                    digitcounter += 1
-                    if digitcounter > 0:
-                        break
-                else:
-                    groupingdepth  += 1
-                    namestart += item
-                    if groupingdepth > 4:
-                        break
-
-        if len(namestart) == 0:
-            namestart = filename
-        
-        
-        if not namestart in files_dict.keys():
-            files_dict[namestart] = []
-            #print namestart
-        files_dict[namestart].append(filename)
-    
-    for key in files_dict.keys():
-        workinglist = files_dict[key]
-        length = 10
-        if len(workinglist) > length:
-            #print workinglist
-            sortedlist = sorted(workinglist, cmp=split_numeric_sort)
-            #print sortedlist
-            while len(sortedlist) > length:
-                item = sortedlist.pop()
-                fullpath = os.path.join(dir_path,item)
-                yield fullpath
-    return
-
-
-def ExpireOldestFiles(dir_path,noop = True):
-    log = logging.getLogger("ExpireOldestFiles")
-    for filepath in OldestFiles(dir_path):
-        if noop:
-            log.info("Would remove:%s" % (filepath))
-            continue
-        log.debug("Removing:%s" % (filepath))
-        os.remove(fullpath)
-        
-
 class dirvacua:
     def __init__(self):
         self.maxitems = 10
         self.matchstringsmax = 4
         self.digitsskipmax = 0
         self.noop = True
+        self.log = logging.getLogger("dirvacua")
+    
+    def matchHash(self,filename):
+        splitdelimiter = split_line_by_delimiter(filename,regdelexp)
+        splitlist = []
+        namestart = filename
+        digitcounter = 0
+        for thingy in splitdelimiter:
+            tempsplit = split_line_by_delimiter(thingy,regnumeric)
+            for item in tempsplit:
+                if item.isdigit():
+                    digitcounter += 1
+                    if digitcounter < self.digitsskipmax:
+                        continue
+                    break
+                splitlist.append(item)
+                if len(splitlist) > self.matchstringsmax:
+                    break
+            
+            #print splitname
+            #print 'xxx',splitlist
+        
+        if len(splitlist) > 2:
+            namestart = ''
+            for item in splitlist:
+                #print filename
+                #print len(splitname)
+                digitcounter = 0
+                groupingdepth = 0
+
+                if item.isdigit():
+                    digitcounter += 1
+                    if digitcounter > 0:
+                        continue
+                else:
+                    groupingdepth  += 1
+                    namestart += item
+                    if groupingdepth > 0:
+                        continue
+
+        if len(namestart) == 0:
+            namestart = filename
+        #self.log.debug("namestart=%s" % (namestart))
+        return namestart
     
     
     def OldestFiles(self,dir_path):
@@ -214,30 +193,8 @@ class dirvacua:
             fullpath = os.path.join(dir_path,filename)
             if not os.path.isfile(fullpath):
                 continue
-            splitname = split_line_by_delimiter(filename,regdelexp)
-            namestart = filename
-
-            if len(splitname) > 10:
-                #print filename
-                #print len(splitname)
-                namestart = ''
-                digitcounter = 0
-                groupingdepth = 0
-                for item in splitname:
-                    if item.isdigit():
-                        digitcounter += 1
-                        if digitcounter > 0:
-                            break
-                    else:
-                        groupingdepth  += 1
-                        namestart += item
-                        if groupingdepth > 4:
-                            break
-
-            if len(namestart) == 0:
-                namestart = filename
-
-
+            
+            namestart = self.matchHash(filename)
             if not namestart in files_dict.keys():
                 files_dict[namestart] = []
                 #print namestart
@@ -247,9 +204,7 @@ class dirvacua:
             workinglist = files_dict[key]
             length = self.maxitems
             if len(workinglist) > length:
-                #print workinglist
                 sortedlist = sorted(workinglist, cmp=split_numeric_sort)
-                #print sortedlist
                 while len(sortedlist) > length:
                     item = sortedlist.pop()
                     fullpath = os.path.join(dir_path,item)
@@ -259,7 +214,7 @@ class dirvacua:
     def ExpireOldestFiles(self,dir_path):
         log = logging.getLogger("ExpireOldestFiles")
         log.debug("noop:%s" % (self.noop))
-        for filepath in OldestFiles(dir_path):
+        for filepath in self.OldestFiles(dir_path):
             if self.noop:
                 log.info("Would remove:%s" % (filepath))
                 continue
@@ -348,6 +303,7 @@ def main():
         log.error("no directories specified to vacuum.")
     processor = dirvacua()
     processor.noop = nodelete
+    processor.maxitems = maxversions
     for thisdir in arguments:
         if not os.path.isdir(thisdir):
             log.error("Could not find directory path:%s" % (thisdir))
