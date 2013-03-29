@@ -26,11 +26,15 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
+import optparse
 import os
 import os.path
 
 import re
 import sys
+import logging
+
+version = "0.0.1"
 
 prefix = '/root/owen/grid-virt/com.redhat.repo.maker/trunk/'
 
@@ -159,9 +163,94 @@ def ExpireOldestFiles(dir_path):
                 print "deleting %s" % (fullpath)
                 os.remove(fullpath)
 def main():
-    for thisdir in directories:
-        working_dir = os.path.join(prefix,thisdir)
-        ExpireOldestFiles(working_dir)
+    """Runs program and handles command line options"""
+    p = optparse.OptionParser(version = "%prog " + version)
+    p.add_option('-d', '--database', action ='store', help='Database conection string')
+    p.add_option('-L', '--logcfg', action ='store',help='Logfile configuration file.', metavar='CFG_LOGFILE')
+    p.add_option('--verbose', action ='count',help='Change global log level, increasing log output.', metavar='LOGFILE')
+    p.add_option('--quiet', action ='count',help='Change global log level, decreasing log output.', metavar='LOGFILE')
+
+    options, arguments = p.parse_args()
+    
+    # Set up basic variables
+    logFile = None
+    
+       # Read enviroment variables
+    if 'VMCASTER_LOG_CONF' in os.environ:
+        logFile = os.environ['VMCASTER_LOG_CONF']
+    if 'VMCASTER_RDBMS' in os.environ:
+        databaseConnectionString = os.environ['VMCASTER_RDBMS']
+    if 'VMCASTER_CFG' in os.environ:
+        dishCfg = os.environ['VMCASTER_CFG']
+    if 'HOME' in os.environ:
+        applicationHome = os.environ['HOME']
+    
+    if 'VMCASTER_X509_DIR' in os.environ:
+        pathX509Dir = os.environ['VMCASTER_X509_DIR']
+    if 'VMCASTER_X509_KEY' in os.environ:
+        pathX509Key = os.environ['VMCASTER_X509_KEY']
+    if 'VMCASTER_X509_CERT' in os.environ:
+        pathX509Cert = os.environ['VMCASTER_X509_CERT']
+
+    
+    # Set up log file
+    
+    LoggingLevel = logging.WARNING
+    LoggingLevelCounter = 1
+    if options.verbose:
+        LoggingLevelCounter = LoggingLevelCounter - options.verbose
+        if options.verbose == 1:
+            LoggingLevel = logging.INFO
+        if options.verbose == 2:
+            LoggingLevel = logging.DEBUG
+    if options.quiet:
+        LoggingLevelCounter = LoggingLevelCounter + options.quiet
+    if LoggingLevelCounter <= 0:
+        LoggingLevel = logging.DEBUG
+    if LoggingLevelCounter == 1:
+        LoggingLevel = logging.INFO
+    if LoggingLevelCounter == 2:
+        LoggingLevel = logging.WARNING
+    if LoggingLevelCounter == 3:
+        LoggingLevel = logging.ERROR
+    if LoggingLevelCounter == 4:
+        LoggingLevel = logging.FATAL
+    if LoggingLevelCounter >= 5:
+        LoggingLevel = logging.CRITICAL
+    
+    if options.logcfg:
+        logFile = options.logcfg
+    if logFile != None:
+        if os.path.isfile(str(options.log_config)):
+            logging.config.fileConfig(options.log_config)
+        else:
+            logging.basicConfig(level=LoggingLevel)
+            log = logging.getLogger("main")
+            log.error("Logfile configuration file '%s' was not found." % (options.log_config))
+            sys.exit(1)
+    else:
+        
+        logging.basicConfig(level=LoggingLevel)
+    log = logging.getLogger("main")
+    # Now process command line
+    targets = []
+    
+    
+    
+    
+    #print options, arguments 
+    for arg in arguments:
+        targets.append(arg)
+    
+    if len(targets) == 0:
+        log.info("list directories to vacuum at the end of the command line.")
+        log.error("no directories specified to vacuum.")
+        
+    for thisdir in arguments:
+        if not os.path.isdir(thisdir):
+            log.error("Could not find directory path:%s" % (thisdir))
+            continue
+        ExpireOldestFiles(thisdir)
 
 if __name__ == "__main__":
     main()
