@@ -213,7 +213,7 @@ def main():
     p.add_option('--verbose', action ='count',help='Change global log level, increasing log output.', metavar='LOGFILE')
     p.add_option('--quiet', action ='count',help='Change global log level, decreasing log output.', metavar='LOGFILE')
     p.add_option('--nop', action ='store_true',help='Show files that woudl be removed.', metavar='LOGFILE')
-    p.add_option('--max', action ='store',help='Set the maximum files allowed.', metavar='LOGFILE')
+    p.add_option('--max', action ='store',help='Set the maximum number of file versions allowed.', metavar='LOGFILE')
 
     options, arguments = p.parse_args()
     
