@@ -153,15 +153,15 @@ def ExpireOldestFiles(dir_path):
         files_dict[namestart].append(filename)
     for key in files_dict.keys():
         workinglist = files_dict[key]
-        
-        if len(workinglist) > 10:
+        length = 10
+        if len(workinglist) > length:
             #print workinglist
             sortedlist = sorted(workinglist, cmp=split_numeric_sort)
-            while len(sortedlist) > 10:
+            while len(sortedlist) > length:
                 item = sortedlist.pop()
                 fullpath = os.path.join(dir_path,item)
                 print "deleting %s" % (fullpath)
-                os.remove(fullpath)
+                #os.remove(fullpath)
 def main():
     """Runs program and handles command line options"""
     p = optparse.OptionParser(version = "%prog " + version)
@@ -178,20 +178,10 @@ def main():
        # Read enviroment variables
     if 'VMCASTER_LOG_CONF' in os.environ:
         logFile = os.environ['VMCASTER_LOG_CONF']
-    if 'VMCASTER_RDBMS' in os.environ:
-        databaseConnectionString = os.environ['VMCASTER_RDBMS']
     if 'VMCASTER_CFG' in os.environ:
         dishCfg = os.environ['VMCASTER_CFG']
     if 'HOME' in os.environ:
         applicationHome = os.environ['HOME']
-    
-    if 'VMCASTER_X509_DIR' in os.environ:
-        pathX509Dir = os.environ['VMCASTER_X509_DIR']
-    if 'VMCASTER_X509_KEY' in os.environ:
-        pathX509Key = os.environ['VMCASTER_X509_KEY']
-    if 'VMCASTER_X509_CERT' in os.environ:
-        pathX509Cert = os.environ['VMCASTER_X509_CERT']
-
     
     # Set up log file
     
