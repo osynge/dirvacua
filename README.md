@@ -55,7 +55,7 @@ first 4 string blocks in order are the same it assumes the file is the same. If
 a number is found in the file name it is assumed this is the start of the 
 versioning. The following option sets the default options:
 
-   $ my_development_yum_repository="/pub/dev/yum/owen"
-   $ dirvacua --match-string-count 4\
-       --match-number-skip 0 \
-       $my_development_yum_repository
+    $ my_development_yum_repository="/pub/dev/yum/owen"
+    $ dirvacua --match-string-count 4\
+        --match-number-skip 0 \
+        $my_development_yum_repository
