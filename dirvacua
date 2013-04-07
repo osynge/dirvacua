@@ -36,16 +36,6 @@ import logging
 
 version = "0.0.1"
 
-prefix = '/root/owen/grid-virt/com.redhat.repo.maker/trunk/'
-
-directories = [
-        'sl6/noarch/RPMS.experimental/',
-        'sl6/noarch/SRPMS.experimental/',
-        'sl5/noarch/RPMS.experimental/',
-        'sl5/noarch/SRPMS.experimental/',
-    ]
-
-
 regdelexp = re.compile('[-,\_.\/]')
 regnumeric = re.compile('[0-9]+')
 
