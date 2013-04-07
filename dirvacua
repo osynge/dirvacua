@@ -209,11 +209,13 @@ class dirvacua:
 def main():
     """Runs program and handles command line options"""
     p = optparse.OptionParser(version = "%prog " + version)
-    p.add_option('-L', '--logcfg', action ='store',help='Logfile configuration file.', metavar='CFG_LOGFILE')
+    p.add_option('-L', '--logcfg', action ='store',help='Logfile configuration file.', metavar='DIRVACUA_LOG_CONF')
     p.add_option('--verbose', action ='count',help='Change global log level, increasing log output.', metavar='LOGFILE')
     p.add_option('--quiet', action ='count',help='Change global log level, decreasing log output.', metavar='LOGFILE')
     p.add_option('--nop', action ='store_true',help='Show files that woudl be removed.', metavar='LOGFILE')
-    p.add_option('--max', action ='store',help='Set the maximum number of file versions allowed.', metavar='LOGFILE')
+    p.add_option('--max', action ='store',help='Set the maximum number of file versions allowed.', metavar='MAXFILES')
+    p.add_option('--match-string-count', action ='store',help='Set the maximum number string sections to match.')
+    p.add_option('--match-number-skip', action ='store',help='Set the maximum number string sections to match.')
 
     options, arguments = p.parse_args()
     
@@ -221,13 +223,11 @@ def main():
     logFile = None
     nodelete = False
     maxversions = 10
+    matchstringsmax = 4
+    matchnumberskip = 0
        # Read enviroment variables
-    if 'VMCASTER_LOG_CONF' in os.environ:
-        logFile = os.environ['VMCASTER_LOG_CONF']
-    if 'VMCASTER_CFG' in os.environ:
-        dishCfg = os.environ['VMCASTER_CFG']
-    if 'HOME' in os.environ:
-        applicationHome = os.environ['HOME']
+    if 'DIRVACUA_LOG_CONF' in os.environ:
+        logFile = os.environ['DIRVACUA_LOG_CONF']
     
     # Set up log file
     
@@ -256,11 +256,7 @@ def main():
     
     if options.logcfg:
         logFile = options.logcfg
-    if options.nop:
-        nodelete = True
-    if options.max:
-        
-        maxversions = int(options.max)
+
     if logFile != None:
         if os.path.isfile(str(options.log_config)):
             logging.config.fileConfig(options.log_config)
@@ -277,6 +273,15 @@ def main():
     targets = []
     
     
+    if options.nop:
+        nodelete = True
+    if options.max:
+        maxversions = int(options.max)
+    if options.match_string_count:
+        matchstringsmax = int(options.match_string_count)
+    
+    if options.match_number_skip:
+        matchnumberskip = int(options.match_number_skip)
     
     
     #print options, arguments 
@@ -286,9 +291,16 @@ def main():
     if len(targets) == 0:
         log.info("list directories to vacuum at the end of the command line.")
         log.error("no directories specified to vacuum.")
+        sys.exit(2)
+    if matchstringsmax < 1:
+        log.error("Number of strings to match must be 1 or greater.")
+        sys.exit(3)
     processor = dirvacua()
     processor.noop = nodelete
     processor.maxitems = maxversions
+    processor.matchstringsmax = matchstringsmax
+    processor.digitsskipmax = matchnumberskip
+    
     for thisdir in arguments:
         if not os.path.isdir(thisdir):
             log.error("Could not find directory path:%s" % (thisdir))
