@@ -1,0 +1,7 @@
+Changelog
+
+dirvacua-0.0.3
+
+ * Deleted legacy code.
+ * Removed copy N paste error in setup.py
+ * Improved documentation (spelling and markup errors).
