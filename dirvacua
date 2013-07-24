@@ -205,15 +205,21 @@ class dirvacua:
                 continue
             self.log.debug("Removing:%s" % (filepath))
             os.remove(filepath)
-
+    def ExpireOldestFilesRecurse(self,dir_path):
+        for root, dirs, files in os.walk(dir_path):
+            for d in dirs:
+                fullpath = os.path.join(root, d)
+                self.ExpireOldestFiles(fullpath)
+            
 def main():
     """Runs program and handles command line options"""
     p = optparse.OptionParser(version = "%prog " + version)
     p.add_option('-L', '--logcfg', action ='store',help='Logfile configuration file.', metavar='CFG_LOGFILE')
     p.add_option('--verbose', action ='count',help='Change global log level, increasing log output.', metavar='LOGFILE')
     p.add_option('--quiet', action ='count',help='Change global log level, decreasing log output.', metavar='LOGFILE')
-    p.add_option('--nop', action ='store_true',help='Show files that woudl be removed.', metavar='LOGFILE')
+    p.add_option('--noop', action ='store_true',help='Show files that woudl be removed.', metavar='LOGFILE')
     p.add_option('--max', action ='store',help='Set the maximum number of file versions allowed.', metavar='LOGFILE')
+    p.add_option('--recurse', action ='store_true',help='Recursively work on directories.', metavar='LOGFILE')
 
     options, arguments = p.parse_args()
     
@@ -221,6 +227,7 @@ def main():
     logFile = None
     nodelete = False
     maxversions = 10
+    recurse = False
        # Read enviroment variables
     if 'VMCASTER_LOG_CONF' in os.environ:
         logFile = os.environ['VMCASTER_LOG_CONF']
@@ -256,8 +263,11 @@ def main():
     
     if options.logcfg:
         logFile = options.logcfg
-    if options.nop:
+    if options.noop:
         nodelete = True
+    if options.recurse:
+        recurse = True
+    
     if options.max:
         
         maxversions = int(options.max)
@@ -289,11 +299,15 @@ def main():
     processor = dirvacua()
     processor.noop = nodelete
     processor.maxitems = maxversions
+    
     for thisdir in arguments:
         if not os.path.isdir(thisdir):
             log.error("Could not find directory path:%s" % (thisdir))
             continue
-        processor.ExpireOldestFiles(thisdir)
+        if recurse == True:
+            processor.ExpireOldestFilesRecurse(thisdir)
+        else:
+            processor.ExpireOldestFiles(thisdir)
 
 if __name__ == "__main__":
     main()
