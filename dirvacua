@@ -277,8 +277,6 @@ def main():
     targets = []
     
     
-    if options.nop:
-        nodelete = True
     if options.max:
         maxversions = int(options.max)
     if options.match_string_count:
