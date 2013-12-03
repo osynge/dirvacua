@@ -163,7 +163,6 @@ class dirvacua:
     def OldestFiles(self,dir_path):
         log = logging.getLogger("OldestFiles")
         #log.info(dir_path)
-        
         if not os.path.isdir(dir_path):
             log.warning("Invalid directory:%s" % (dir_path))
         files_dict = {}
@@ -227,6 +226,7 @@ class dirvacua:
             for d in dirs:
                 fullpath = os.path.join(root, d)
                 self.ExpireOldestFiles(fullpath)
+	self.ExpireOldestFiles(dir_path)
             
 def main():
     """Runs program and handles command line options"""
@@ -327,7 +327,7 @@ def main():
         log.info("Matching files by default.")
     
     
-    #print options, arguments 
+    # options, arguments 
     for arg in arguments:
         targets.append(arg)
     
@@ -344,7 +344,6 @@ def main():
     processor.matchstringsmax = matchstringsmax
     processor.digitsskipmax = matchnumberskip
     processor.fileTypes = matchFileType
-    
     for thisdir in arguments:
         if not os.path.isdir(thisdir):
             log.error("Could not find directory path:%s" % (thisdir))
