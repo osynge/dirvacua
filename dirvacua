@@ -205,13 +205,13 @@ class dirvacua:
                         if self.noop:
                             self.log.info("Would remove:%s" % (path))
                             continue
-                        os.remove(path)
-                for name in dirs:
-                    path = os.path.join(root, name)
-                    if self.noop:
-                        self.log.info("Would remove:%s" % (path))
-                        continue
-                    os.rmdir(path)
+                        os.remove(path)                
+                    for name in dirs:
+                        path = os.path.join(root, name)
+                        if self.noop:
+                            self.log.info("Would remove:%s" % (path))
+                            continue
+                        os.rmdir(path)
                 if self.noop:
                     self.log.info("Would remove:%s" % (filepath))
                     continue
