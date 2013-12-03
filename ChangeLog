@@ -1,5 +1,12 @@
 Changelog
 
+
+dirvacua-0.0.4
+
+ * Added processing for directories and files.
+ * Added '-v' and '-q' short forms of  '--verbose' and '--quiet'.
+
+
 dirvacua-0.0.3
 
  * Deleted legacy code.
