@@ -1,5 +1,5 @@
 from sys import version_info
-version = "0.0.4"
+version = "0.0.5"
 if version_info < (2, 6):
 	from distutils.core import setup
 else:

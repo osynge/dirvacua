@@ -1,5 +1,8 @@
 Changelog
 
+dirvacua-0.0.5
+
+ * Bug fix: recursive option now processes the target directory.
 
 dirvacua-0.0.4
 
