@@ -30,5 +30,19 @@ setup(name=name,
         'Programming Language :: Python',
         ],
     scripts=['dirvacua'],
-    data_files=[('/usr/share/doc/%s' % (name),['README.md','ChangeLog','LICENSE'])],
+    packages = ['pydirvacua'],
+    data_files=[
+        ('/usr/share/doc/%s' % (name),['README.md','ChangeLog','LICENSE'])
+    ]
+    ,
+    tests_require=[
+        'coverage >= 3.0',
+        'nose >= 1.1.0',
+        'mock',
+    ],
+    setup_requires=[
+        'nose',
+    ],
+    test_suite = 'nose.collector',
     )
+
