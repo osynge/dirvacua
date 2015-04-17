@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (c) 2012 Owen Synge 
+# Copyright (c) 2012 Owen Synge
 # All rights reserved.
 
 # Redistribution and use in source and binary forms, with or without
@@ -13,7 +13,7 @@
 #     * Neither the name of the DESY nor the
 #       names of its contributors may be used to endorse or promote products
 #       derived from this software without specific prior written permission.
-# 
+#
 # THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 # ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 # WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -144,22 +144,22 @@ class dirvacua:
                 splitlist.append(item)
                 if len(splitlist) > self.matchstringsmax:
                     break
-            
+
             #print splitname
             #print 'xxx',splitlist
-        
+
         if len(splitlist) > 2:
             #print splitlist
             namestart = ''
             for item in splitlist:
                 namestart += item
-                
+
         if len(namestart) == 0:
             namestart = filename
         #self.log.debug("namestart=%s" % (namestart))
         return namestart
-    
-    
+
+
     def OldestFiles(self,dir_path):
         log = logging.getLogger("OldestFiles")
         #log.info(dir_path)
@@ -171,13 +171,13 @@ class dirvacua:
             isMatchedType = False
             if 'file' in self.fileTypes and os.path.isfile(fullpath):
                 isMatchedType = True
-            
+
             if 'dir' in self.fileTypes and os.path.isdir(fullpath):
                 isMatchedType = True
-            
+
             if isMatchedType == False:
                 continue
-            
+
             namestart = self.matchHash(filename)
             if not namestart in files_dict.keys():
                 files_dict[namestart] = []
@@ -192,7 +192,7 @@ class dirvacua:
                     item = sortedlist.pop()
                     fullpath = os.path.join(dir_path,item)
                     yield fullpath
-        return     
+        return
 
     def ExpireOldestFiles(self,dir_path):
         for filepath in self.OldestFiles(dir_path):
@@ -204,7 +204,7 @@ class dirvacua:
                         if self.noop:
                             self.log.info("Would remove:%s" % (path))
                             continue
-                        os.remove(path)                
+                        os.remove(path)
                     for name in dirs:
                         path = os.path.join(root, name)
                         if self.noop:
@@ -227,7 +227,7 @@ class dirvacua:
                 fullpath = os.path.join(root, d)
                 self.ExpireOldestFiles(fullpath)
 	self.ExpireOldestFiles(dir_path)
-            
+
 def main():
     """Runs program and handles command line options"""
     p = optparse.OptionParser(version = "%prog " + version)
@@ -241,10 +241,10 @@ def main():
     p.add_option('--match-number-skip', action ='store',help='Set the maximum number string sections to match.')
     p.add_option('--files', action ='store_true',help='Work on files. (default)')
     p.add_option('--dirs', action ='store_true',help='Work on directories.')
-    
+
 
     options, arguments = p.parse_args()
-    
+
     # Set up basic variables
     logFile = None
     nodelete = False
@@ -253,13 +253,13 @@ def main():
     matchstringsmax = 4
     matchnumberskip = 0
     matchFileType = set([])
-    
+
     # Read enviroment variables
     if 'DIRVACUA_LOG_CONF' in os.environ:
         logFile = os.environ['DIRVACUA_LOG_CONF']
-    
+
     # Set up log file
-    
+
     LoggingLevel = logging.WARNING
     LoggingLevelCounter = 2
     if options.verbose:
@@ -282,7 +282,7 @@ def main():
         LoggingLevel = logging.FATAL
     if LoggingLevelCounter >= 5:
         LoggingLevel = logging.CRITICAL
-    
+
     if options.logcfg:
         logFile = options.logcfg
     if options.noop:
@@ -290,7 +290,7 @@ def main():
     if options.recurse:
         recurse = True
     if options.max:
-        
+
         maxversions = int(options.max)
 
     if logFile != None:
@@ -302,35 +302,35 @@ def main():
             log.error("Logfile configuration file '%s' was not found." % (options.log_config))
             sys.exit(1)
     else:
-        
+
         logging.basicConfig(level=LoggingLevel)
     log = logging.getLogger("main")
     # Now process command line
     targets = []
-    
-    
+
+
     if options.max:
         maxversions = int(options.max)
     if options.match_string_count:
         matchstringsmax = int(options.match_string_count)
-    
+
     if options.match_number_skip:
         matchnumberskip = int(options.match_number_skip)
     if options.files:
         matchFileType.add('file')
     if options.dirs:
         matchFileType.add('dir')
-    
-    
+
+
     if len(matchFileType) == 0:
         matchFileType.add('file')
         log.info("Matching files by default.")
-    
-    
-    # options, arguments 
+
+
+    # options, arguments
     for arg in arguments:
         targets.append(arg)
-    
+
     if len(targets) == 0:
         log.info("list directories to vacuum at the end of the command line.")
         log.error("no directories specified to vacuum.")
