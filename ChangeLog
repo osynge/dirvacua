@@ -1,5 +1,10 @@
 Changelog
 
+dirvacua-0.0.6
+
+ * Added an example dummy nose test.
+ * Made a single place for storing version number.
+
 dirvacua-0.0.5
 
  * Bug fix: recursive option now processes the target directory.
@@ -8,7 +13,6 @@ dirvacua-0.0.4
 
  * Added processing for directories and files.
  * Added '-v' and '-q' short forms of  '--verbose' and '--quiet'.
-
 
 dirvacua-0.0.3
 

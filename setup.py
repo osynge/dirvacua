@@ -1,5 +1,5 @@
 from sys import version_info
-version = "0.0.5"
+from pydirvacua.__version__ import version
 if version_info < (2, 6):
 	from distutils.core import setup
 else:

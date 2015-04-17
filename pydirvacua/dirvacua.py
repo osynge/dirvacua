@@ -34,7 +34,7 @@ import re
 import sys
 import logging
 
-version = "0.0.1"
+from __version__ import version
 
 regdelexp = re.compile('[-,\_.\/]')
 regnumeric = re.compile('[0-9]+')
