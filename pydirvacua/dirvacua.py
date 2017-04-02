@@ -226,7 +226,7 @@ class dirvacua:
             for d in dirs:
                 fullpath = os.path.join(root, d)
                 self.ExpireOldestFiles(fullpath)
-	self.ExpireOldestFiles(dir_path)
+        self.ExpireOldestFiles(dir_path)
 
 def main():
     """Runs program and handles command line options"""
