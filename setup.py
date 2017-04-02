@@ -61,7 +61,7 @@ setup(name=name,
         'mock',
     ],
     setup_requires=[
-        'nose',
+        'pytest',
     ],
     cmdclass = {'test': PyTest},
     )
