@@ -1,4 +1,6 @@
 from sys import version_info
+import os
+import os.path
 from pydirvacua.__version__ import version
 if version_info < (2, 6):
 	from distutils.core import setup
@@ -11,6 +13,17 @@ else:
         	from setuptools import setup, find_packages
 
 
+def determine_path ():
+    """Borrowed from wxglade.py"""
+    try:
+        root = __file__
+        if os.path.islink (root):
+            root = os.path.realpath (root)
+        return os.path.dirname (os.path.abspath (root))
+    except:
+        print ("I'm sorry, but something is wrong.")
+        print ("There is no __file__ variable. Please contact the author.")
+        sys.exit ()
 
 from setuptools.command.test import test as TestCommand
 import sys
@@ -29,17 +42,30 @@ class PyTest(TestCommand):
         errno = pytest.main(shlex.split(self.pytest_args))
         sys.exit(errno)
 
+needs_scripts = True
+needs_jobs = True
+needs_docs = True
 
-name='dirvacua'
-setup(name=name,
-    version=version,
-    description="""dirvacua is a directory vacuuming tool.""",
-    long_description="""Should you want to keep only the last "N" files of each type from a directory that contains files from multiple source deleteing based up on time may not be enough. dirvacua aims to clearly see which fiels are versions and only delete the older versioned files.""",
-    author="O M Synge",
-    author_email="",
-    license='Apache License (2.0)',
-    url = 'git://github.com/osynge/dirvacua.git',
-    classifiers=[
+if "VIRTUAL_ENV" in os.environ:
+    needs_scripts = False
+    needs_jobs = False
+    needs_docs = False
+
+if "WITHOUT_DOC" in os.environ:
+    needs_docs = False
+
+
+name = "dirvacua"
+setup_args = {
+    "name" : name,
+    "version" : version,
+    "description" : """dirvacua is a directory vacuuming tool.""",
+    "long_description" : """Should you want to keep only the last "N" files of each type from a directory that contains files from multiple source deleteing based up on time may not be enough. dirvacua aims to clearly see which fiels are versions and only delete the older versioned files.""",
+    "author" : "O M Synge",
+    "author_email" : "",
+    "license" : 'Apache License (2.0)',
+    "url" : 'git://github.com/osynge/dirvacua.git',
+    "classifiers" : [
         'Development Status :: 4 - Production/Stable',
         'Environment :: Console',
         'Intended Audience :: Developers',
@@ -49,20 +75,26 @@ setup(name=name,
         'Operating System :: POSIX',
         'Programming Language :: Python',
         ],
-    scripts=['dirvacua'],
-    packages = ['pydirvacua', 'pydirvacua.tests'],
-    data_files=[
-        ('/usr/share/doc/%s' % (name),['README.md','ChangeLog','LICENSE'])
-    ]
-    ,
-    tests_require=[
+    "scripts" : ['dirvacua'],
+    "packages" : ['pydirvacua', 'pydirvacua.tests'],
+    "tests_require" : [
         'coverage >= 3.0',
         'pytest',
         'mock',
     ],
-    setup_requires=[
+    "setup_requires" : [
         'pytest',
     ],
-    cmdclass = {'test': PyTest},
-    )
+    "cmdclass" : {'test': PyTest},
+    }
 
+
+if needs_jobs or needs_scripts or needs_docs:
+    data_files = []
+    path = determine_path ()
+    if needs_docs is True:
+        installdir_doc = "/usr/share/doc/%s-%s" % (name,version)
+        data_files.append((installdir_doc,['README.md','LICENSE','ChangeLog']))
+    setup_args["data_files"] = data_files
+
+setup(**setup_args)
