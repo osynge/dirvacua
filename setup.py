@@ -82,9 +82,7 @@ setup_args = {
         'pytest',
         'mock',
     ],
-    "setup_requires" : [
-        'pytest',
-    ],
+    "setup_requires" : [],
     "cmdclass" : {'test': PyTest},
     }
 
