@@ -1,5 +1,9 @@
 Changelog
 
+dirvacua-0.0.9
+
+ * Dont require pytest for runtime.
+
 dirvacua-0.0.8
 
  * Switch directory paths off with enviroment variables.
