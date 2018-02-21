@@ -4,9 +4,14 @@ import os.path
 from pydirvacua.__version__ import version
 
 if version_info < (2, 6):
-    import sys
     print ("Please use a newer version of python")
     sys.exit(1)
+
+
+if version_info < (2, 7):
+    from distutils.core import setup
+    import sys
+    
 
 if version_info > (2, 7):
     try:
