@@ -1,5 +1,9 @@
 Changelog
 
+dirvacua-0.0.10
+
+ * Use nose rather than pytest for testing
+
 dirvacua-0.0.9
 
  * Dont require pytest for runtime.
