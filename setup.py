@@ -2,15 +2,17 @@ from sys import version_info
 import os
 import os.path
 from pydirvacua.__version__ import version
-if version_info < (2, 6):
-	from distutils.core import setup
-else:
+
+
+try:
+    from setuptools import setup, find_packages
+except ImportError:
 	try:
-        	from setuptools import setup, find_packages
+            from distutils.core import setup
 	except ImportError:
-        	from ez_setup import use_setuptools
-        	use_setuptools()
-        	from setuptools import setup, find_packages
+            from ez_setup import use_setuptools
+            use_setuptools()
+            from setuptools import setup, find_packages
 
 
 def determine_path ():
@@ -85,7 +87,6 @@ setup_args = {
     "setup_requires" : [],
     "cmdclass" : {'test': PyTest},
     }
-
 
 if needs_jobs or needs_scripts or needs_docs:
     data_files = []
