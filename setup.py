@@ -11,7 +11,7 @@ if version_info < (2, 6):
 if version_info < (2, 7):
     from distutils.core import setup
     import sys
-    
+
 
 if version_info > (2, 7):
     try:
