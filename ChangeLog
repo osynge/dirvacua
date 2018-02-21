@@ -1,5 +1,9 @@
 Changelog
 
+dirvacua-0.0.11
+
+ * Sif setup.py for python 2.6
+
 dirvacua-0.0.10
 
  * Use nose rather than pytest for testing
