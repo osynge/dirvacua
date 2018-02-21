@@ -3,16 +3,21 @@ import os
 import os.path
 from pydirvacua.__version__ import version
 
+if version_info < (2, 6):
+    import sys
+    print "Please use a newer version of python"
+    sys.exit(1)
 
-try:
-    from setuptools import setup, find_packages
-except ImportError:
-	try:
-            from ez_setup import use_setuptools
-            use_setuptools()
-            from setuptools import setup, find_packages
-	except ImportError:
-            from distutils.core import setup
+if version_info > (2, 7):
+    try:
+        from setuptools import setup, find_packages
+    except ImportError:
+	    try:
+                from ez_setup import use_setuptools
+                use_setuptools()
+                from setuptools import setup, find_packages
+	    except ImportError:
+                from distutils.core import setup
 
 
 def determine_path ():
