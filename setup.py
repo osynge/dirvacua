@@ -5,7 +5,7 @@ from pydirvacua.__version__ import version
 
 if version_info < (2, 6):
     import sys
-    print "Please use a newer version of python"
+    print ("Please use a newer version of python")
     sys.exit(1)
 
 if version_info > (2, 7):
