@@ -13,11 +13,12 @@ if version_info > (2, 7):
         from setuptools import setup, find_packages
     except ImportError:
 	    try:
+                from distutils.core import setup
+	    except ImportError:
                 from ez_setup import use_setuptools
                 use_setuptools()
                 from setuptools import setup, find_packages
-	    except ImportError:
-                from distutils.core import setup
+
 
 
 def determine_path ():
