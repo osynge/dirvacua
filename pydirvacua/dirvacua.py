@@ -169,11 +169,11 @@ class dirvacua:
             if 'dir' in self.fileTypes and os.path.isdir(fullpath):
                 isMatchedType = True
 
-            if isMatchedType == False:
+            if isMatchedType is False:
                 continue
 
             namestart = self.matchHash(filename)
-            if not namestart in files_dict.keys():
+            if namestart not in files_dict.keys():
                 files_dict[namestart] = []
             files_dict[namestart].append(filename)
         length = self.maxitems
@@ -282,7 +282,7 @@ def main():
 
         maxversions = int(options.max)
 
-    if logFile != None:
+    if logFile is not None:
         if os.path.isfile(str(options.log_config)):
             logging.config.fileConfig(options.log_config)
         else:
@@ -329,7 +329,7 @@ def main():
         if not os.path.isdir(thisdir):
             log.error("Could not find directory path:%s" % (thisdir))
             continue
-        if recurse == True:
+        if recurse is True:
             processor.ExpireOldestFilesRecurse(thisdir)
         else:
             processor.ExpireOldestFiles(thisdir)
