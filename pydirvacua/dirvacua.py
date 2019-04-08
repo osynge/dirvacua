@@ -39,6 +39,7 @@ from __version__ import version
 regdelexp = re.compile('[-,\_.\/]')
 regnumeric = re.compile('[0-9]+')
 
+
 def split_line_by_delimiter(line,regex):
     splitline = []
     splititr = regex.finditer(line)
@@ -87,6 +88,7 @@ def string_sort(x,y):
         return -1
     return 0
 
+
 def split_numeric_sort(x, y):
     xsplit = split_line_by_delimiter(x,regdelexp)
     ysplit = split_line_by_delimiter(y,regdelexp)
@@ -119,7 +121,6 @@ def split_numeric_sort(x, y):
     return 0
 
 
-
 class dirvacua:
     def __init__(self):
         self.maxitems = 10
@@ -128,6 +129,7 @@ class dirvacua:
         self.noop = True
         self.log = logging.getLogger("dirvacua")
         self.fileTypes = set([])
+
     def matchHash(self,filename):
         splitdelimiter = split_line_by_delimiter(filename,regdelexp)
         splitlist = []
@@ -158,7 +160,6 @@ class dirvacua:
             namestart = filename
         #self.log.debug("namestart=%s" % (namestart))
         return namestart
-
 
     def OldestFiles(self,dir_path):
         log = logging.getLogger("OldestFiles")
@@ -221,12 +222,14 @@ class dirvacua:
                     continue
                 self.log.debug("Removing:%s" % (filepath))
                 os.remove(filepath)
+
     def ExpireOldestFilesRecurse(self,dir_path):
         for root, dirs, files in os.walk(dir_path):
             for d in dirs:
                 fullpath = os.path.join(root, d)
                 self.ExpireOldestFiles(fullpath)
         self.ExpireOldestFiles(dir_path)
+
 
 def main():
     """Runs program and handles command line options"""
@@ -241,10 +244,7 @@ def main():
     p.add_option('--match-number-skip', action ='store',help='Set the maximum number string sections to match.')
     p.add_option('--files', action ='store_true',help='Work on files. (default)')
     p.add_option('--dirs', action ='store_true',help='Work on directories.')
-
-
     options, arguments = p.parse_args()
-
     # Set up basic variables
     logFile = None
     nodelete = False
@@ -253,13 +253,10 @@ def main():
     matchstringsmax = 4
     matchnumberskip = 0
     matchFileType = set([])
-
     # Read enviroment variables
     if 'DIRVACUA_LOG_CONF' in os.environ:
         logFile = os.environ['DIRVACUA_LOG_CONF']
-
     # Set up log file
-
     LoggingLevel = logging.WARNING
     LoggingLevelCounter = 2
     if options.verbose:
@@ -307,30 +304,22 @@ def main():
     log = logging.getLogger("main")
     # Now process command line
     targets = []
-
-
     if options.max:
         maxversions = int(options.max)
     if options.match_string_count:
         matchstringsmax = int(options.match_string_count)
-
     if options.match_number_skip:
         matchnumberskip = int(options.match_number_skip)
     if options.files:
         matchFileType.add('file')
     if options.dirs:
         matchFileType.add('dir')
-
-
     if len(matchFileType) == 0:
         matchFileType.add('file')
         log.info("Matching files by default.")
-
-
     # options, arguments
     for arg in arguments:
         targets.append(arg)
-
     if len(targets) == 0:
         log.info("list directories to vacuum at the end of the command line.")
         log.error("no directories specified to vacuum.")
@@ -352,6 +341,7 @@ def main():
             processor.ExpireOldestFilesRecurse(thisdir)
         else:
             processor.ExpireOldestFiles(thisdir)
+
 
 if __name__ == "__main__":
     main()
