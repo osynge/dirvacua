@@ -40,12 +40,12 @@ regdelexp = re.compile('[-,\_.\/]')
 regnumeric = re.compile('[0-9]+')
 
 
-def split_line_by_delimiter(line,regex):
+def split_line_by_delimiter(line, regex):
     splitline = []
     splititr = regex.finditer(line)
     lstart = 0
     for i in splititr:
-        (mstart,mend) = i.span()
+        (mstart, mend) = i.span()
         if lstart != mstart:
             splitline.append(line[lstart:mstart])
         splitline.append(line[mstart:mend])
@@ -56,9 +56,9 @@ def split_line_by_delimiter(line,regex):
     return splitline
 
 
-def string_sort(x,y):
-    xsplit = split_line_by_delimiter(x,regnumeric)
-    ysplit = split_line_by_delimiter(y,regnumeric)
+def string_sort(x, y):
+    xsplit = split_line_by_delimiter(x, regnumeric)
+    ysplit = split_line_by_delimiter(y, regnumeric)
     ysplitlen = len(ysplit)
     xsplitlen = len(xsplit)
     minsplitlen = ysplitlen
@@ -90,8 +90,8 @@ def string_sort(x,y):
 
 
 def split_numeric_sort(x, y):
-    xsplit = split_line_by_delimiter(x,regdelexp)
-    ysplit = split_line_by_delimiter(y,regdelexp)
+    xsplit = split_line_by_delimiter(x, regdelexp)
+    ysplit = split_line_by_delimiter(y, regdelexp)
     ysplitlen = len(ysplit)
     xsplitlen = len(xsplit)
     minsplitlen = ysplitlen
@@ -111,7 +111,7 @@ def split_numeric_sort(x, y):
             return -1
         if ysplit[i].isdigit():
             return 1
-        rc = string_sort(xsplit[i],ysplit[i])
+        rc = string_sort(xsplit[i], ysplit[i])
         if rc != 0:
             return rc
     if xsplitlen < ysplitlen:
@@ -130,13 +130,13 @@ class dirvacua:
         self.log = logging.getLogger("dirvacua")
         self.fileTypes = set([])
 
-    def matchHash(self,filename):
-        splitdelimiter = split_line_by_delimiter(filename,regdelexp)
+    def matchHash(self, filename):
+        splitdelimiter = split_line_by_delimiter(filename, regdelexp)
         splitlist = []
         namestart = filename
         digitcounter = 0
         for thingy in splitdelimiter:
-            tempsplit = split_line_by_delimiter(thingy,regnumeric)
+            tempsplit = split_line_by_delimiter(thingy, regnumeric)
             for item in tempsplit:
                 if item.isdigit():
                     digitcounter += 1
@@ -161,14 +161,14 @@ class dirvacua:
         #self.log.debug("namestart=%s" % (namestart))
         return namestart
 
-    def OldestFiles(self,dir_path):
+    def OldestFiles(self, dir_path):
         log = logging.getLogger("OldestFiles")
         #log.info(dir_path)
         if not os.path.isdir(dir_path):
             log.warning("Invalid directory:%s" % (dir_path))
         files_dict = {}
         for filename in os.listdir(dir_path):
-            fullpath = os.path.join(dir_path,filename)
+            fullpath = os.path.join(dir_path, filename)
             isMatchedType = False
             if 'file' in self.fileTypes and os.path.isfile(fullpath):
                 isMatchedType = True
@@ -191,11 +191,11 @@ class dirvacua:
                 sortedlist = sorted(workinglist, cmp=split_numeric_sort)
                 while len(sortedlist) > length:
                     item = sortedlist.pop()
-                    fullpath = os.path.join(dir_path,item)
+                    fullpath = os.path.join(dir_path, item)
                     yield fullpath
         return
 
-    def ExpireOldestFiles(self,dir_path):
+    def ExpireOldestFiles(self, dir_path):
         for filepath in self.OldestFiles(dir_path):
             if os.path.isdir(filepath):
                 # With directories to full path
@@ -223,7 +223,7 @@ class dirvacua:
                 self.log.debug("Removing:%s" % (filepath))
                 os.remove(filepath)
 
-    def ExpireOldestFilesRecurse(self,dir_path):
+    def ExpireOldestFilesRecurse(self, dir_path):
         for root, dirs, files in os.walk(dir_path):
             for d in dirs:
                 fullpath = os.path.join(root, d)
@@ -233,17 +233,17 @@ class dirvacua:
 
 def main():
     """Runs program and handles command line options"""
-    p = optparse.OptionParser(version = "%prog " + version)
-    p.add_option('-L', '--logcfg', action ='store',help='Logfile configuration file.', metavar='DIRVACUA_LOG_CONF')
-    p.add_option('-v', '--verbose', action ='count',help='Change global log level, increasing log output.', metavar='LOGFILE')
-    p.add_option('-q', '--quiet', action ='count',help='Change global log level, decreasing log output.', metavar='LOGFILE')
-    p.add_option('--noop', action ='store_true',help='Show files that woudl be removed.', metavar='LOGFILE')
-    p.add_option('--max', action ='store',help='Set the maximum number of file versions allowed.', metavar='MAXFILES')
-    p.add_option('--recurse', action ='store_true',help='Recursively work on directories.', metavar='LOGFILE')
-    p.add_option('--match-string-count', action ='store',help='Set the maximum number string sections to match.')
-    p.add_option('--match-number-skip', action ='store',help='Set the maximum number string sections to match.')
-    p.add_option('--files', action ='store_true',help='Work on files. (default)')
-    p.add_option('--dirs', action ='store_true',help='Work on directories.')
+    p = optparse.OptionParser(version="%prog " + version)
+    p.add_option('-L', '--logcfg', action='store', help='Logfile configuration file.', metavar='DIRVACUA_LOG_CONF')
+    p.add_option('-v', '--verbose', action='count', help='Change global log level, increasing log output.', metavar='LOGFILE')
+    p.add_option('-q', '--quiet', action='count', help='Change global log level, decreasing log output.', metavar='LOGFILE')
+    p.add_option('--noop', action='store_true', help='Show files that woudl be removed.', metavar='LOGFILE')
+    p.add_option('--max', action='store', help='Set the maximum number of file versions allowed.', metavar='MAXFILES')
+    p.add_option('--recurse', action='store_true', help='Recursively work on directories.', metavar='LOGFILE')
+    p.add_option('--match-string-count', action='store', help='Set the maximum number string sections to match.')
+    p.add_option('--match-number-skip', action='store', help='Set the maximum number string sections to match.')
+    p.add_option('--files', action='store_true', help='Work on files. (default)')
+    p.add_option('--dirs', action='store_true', help='Work on directories.')
     options, arguments = p.parse_args()
     # Set up basic variables
     logFile = None
