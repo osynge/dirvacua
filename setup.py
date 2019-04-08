@@ -110,6 +110,7 @@ setup_args = {
         'coverage >= 3.0',
         'pytest',
         'mock',
+        'flake8',
     ],
     "setup_requires" : [],
     "cmdclass" : {'test': PyTest},
