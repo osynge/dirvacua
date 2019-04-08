@@ -146,24 +146,17 @@ class dirvacua:
                 splitlist.append(item)
                 if len(splitlist) > self.matchstringsmax:
                     break
-
-            #print splitname
-            #print 'xxx',splitlist
-
         if len(splitlist) > 2:
-            #print splitlist
             namestart = ''
             for item in splitlist:
                 namestart += item
-
         if len(namestart) == 0:
             namestart = filename
-        #self.log.debug("namestart=%s" % (namestart))
+        # self.log.debug("namestart=%s" % (namestart))
         return namestart
 
     def OldestFiles(self, dir_path):
         log = logging.getLogger("OldestFiles")
-        #log.info(dir_path)
         if not os.path.isdir(dir_path):
             log.warning("Invalid directory:%s" % (dir_path))
         files_dict = {}
@@ -182,7 +175,6 @@ class dirvacua:
             namestart = self.matchHash(filename)
             if not namestart in files_dict.keys():
                 files_dict[namestart] = []
-                #print namestart
             files_dict[namestart].append(filename)
         length = self.maxitems
         for key in files_dict.keys():
