@@ -6,6 +6,7 @@ class TestModule_runnershell2:
     def test_initialise(self):
         pass
 
+
 if __name__ == "__main__":
     logging.basicConfig()
     LoggingLevel = logging.WARNING
