@@ -25,16 +25,15 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-
+from __future__ import absolute_import
 import optparse
 import os
 import os.path
-
 import re
 import sys
 import logging
 
-from __version__ import version
+from .__version__ import version
 
 regdelexp = re.compile('[-,_./]')
 regnumeric = re.compile('[0-9]+')
