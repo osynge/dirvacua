@@ -36,7 +36,7 @@ import logging
 
 from __version__ import version
 
-regdelexp = re.compile('[-,\_.\/]')
+regdelexp = re.compile('[-,_./]')
 regnumeric = re.compile('[0-9]+')
 
 
